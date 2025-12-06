@@ -95,7 +95,7 @@ const IA = () => {
     } else {
       setMessages([]);
     }
-  }, [selectedChat._id]);
+  }, [selectedChat?._id]);
 
   // === Scroll automático al final ===
   useEffect(() => {
@@ -691,3 +691,4 @@ const inputSyle = {
 };
 
 export default IA;
+
