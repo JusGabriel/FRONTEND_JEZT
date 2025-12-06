@@ -24,15 +24,15 @@ const IA = () => {
   const [currentResponseId, setCurrentResponseId] = useState(null);
   
   const chatRef = useRef(null);
-  // ✅ NO obtener token aquí - hacerlo en cada petición
+  // NO obtener token aquí - hacerlo en cada petición
   
   const API_URL = import.meta.env.VITE_BACKEND_URL;
-  const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL; // ✅ URL del backend Python
+  const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL; // URL del backend Python
 
   // === Cargar historial de conversaciones ===
   const obtenerHistorial = async () => {
     try {
-      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
+      const token = storeAuth.getState().token || ""; // Obtener token dinámicamente
       const res = await axios.get(`${API_URL}/historial`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -98,7 +98,7 @@ const IA = () => {
   // === Crear nueva conversación ===
   const crearConversacion = async () => {
     try {
-      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
+      const token = storeAuth.getState().token || ""; // Obtener token dinámicamente
       const res = await axios.post(
         `${API_URL}/crear`, 
         {}, 
@@ -169,7 +169,7 @@ const IA = () => {
     setStreamingMessage("");
 
     try {
-      // ✅ OBTENER TOKEN DINÁMICAMENTE EN CADA PETICIÓN
+      // OBTENER TOKEN DINÁMICAMENTE EN CADA PETICIÓN
       const token = storeAuth.getState().token || "";
       
       if (!token) {
@@ -179,13 +179,13 @@ const IA = () => {
       
       console.log("🔑 Token obtenido:", token.substring(0, 20) + "...");
       
-      // ✅ LLAMAR AL BACKEND NODE.JS (NO directamente a Python)
+      // LLAMAR AL BACKEND NODE.JS (NO directamente a Python)
       // El Backend Node.js se encargará de reenviar al microservicio Python
       const response = await fetch(`${API_URL}/enviar/${chatId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`  // ✅ Token incluido SIEMPRE
+          'Authorization': `Bearer ${token}`  // Token incluido SIEMPRE
         },
         body: JSON.stringify({
           question: texto
@@ -235,7 +235,50 @@ const IA = () => {
                 setMessages(prev => [...prev, botMessage]);
                 setStreamingMessage("");
                 
-                // ✅ Ya no necesitamos actualizarChatEnBD
+                // ACTUALIZAR selectedChat CON LA NUEVA RESPUESTA
+                // Esto es crítico para que los cambios aparezcan inmediatamente
+                setSelectedChat(prev => {
+                  if (!prev) return prev;
+                  
+                  const chatActualizado = { ...prev };
+                  
+                  // Agregar al array de preguntas/respuestas
+                  if (!chatActualizado.preguntas) chatActualizado.preguntas = [];
+                  if (!chatActualizado.respuestas) chatActualizado.respuestas = [];
+                  
+                  // Agregar pregunta si no está
+                  if (!chatActualizado.preguntas.includes(texto)) {
+                    chatActualizado.preguntas.push(texto);
+                  }
+                  
+                  // Agregar respuesta
+                  chatActualizado.respuestas.push(respuestaCompleta);
+                  
+                  // Actualizar campos simples también (para compatibilidad)
+                  chatActualizado.pregunta = texto;
+                  chatActualizado.respuesta = respuestaCompleta;
+                  
+                  return chatActualizado;
+                });
+                
+                //También actualizar en el array de chats
+                setChats(prev => prev.map(c => {
+                  if (c._id === chatId) {
+                    const chatActualizado = { ...c };
+                    if (!chatActualizado.preguntas) chatActualizado.preguntas = [];
+                    if (!chatActualizado.respuestas) chatActualizado.respuestas = [];
+                    if (!chatActualizado.preguntas.includes(texto)) {
+                      chatActualizado.preguntas.push(texto);
+                    }
+                    chatActualizado.respuestas.push(respuestaCompleta);
+                    chatActualizado.pregunta = texto;
+                    chatActualizado.respuesta = respuestaCompleta;
+                    return chatActualizado;
+                  }
+                  return c;
+                }));
+                
+                // Ya no necesitamos actualizarChatEnBD
                 // El Backend Node.js ya guardó la respuesta en MongoDB
                 
               } else if (parsed.etapa && parsed.etapa !== 'completado') {
@@ -271,7 +314,7 @@ const IA = () => {
     
     if (window.confirm("¿Estás seguro de que quieres eliminar esta conversación?")) {
       try {
-        const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
+        const token = storeAuth.getState().token || ""; // Obtener token dinámicamente
         await axios.delete(`${API_URL}/eliminar/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -304,7 +347,7 @@ const IA = () => {
     if (!currentResponseId) return;
 
     try {
-      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
+      const token = storeAuth.getState().token || ""; // Obtener token dinámicamente
       const res = await axios.post(
         `${API_URL}/calificar`,
         {
@@ -683,5 +726,8 @@ const IA = () => {
 const inputSyle = {
   fontFamily: "Gowun Batang, serif",
 };
+
+export default IA;
+
 
 export default IA;
