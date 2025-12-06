@@ -179,16 +179,16 @@ const IA = () => {
       
       console.log("🔑 Token obtenido:", token.substring(0, 20) + "...");
       
-      // CONEXIÓN DIRECTA AL BACKEND PYTHON CON STREAMING
-      const response = await fetch(`${PYTHON_BACKEND_URL}/api/chat`, {
+      // ✅ LLAMAR AL BACKEND NODE.JS (NO directamente a Python)
+      // El Backend Node.js se encargará de reenviar al microservicio Python
+      const response = await fetch(`${API_URL}/enviar/${chatId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`  // ✅ Token incluido SIEMPRE
         },
         body: JSON.stringify({
-          pregunta: texto,
-          streaming: true  // ACTIVAR STREAMING
+          question: texto
         })
       });
 
@@ -235,8 +235,8 @@ const IA = () => {
                 setMessages(prev => [...prev, botMessage]);
                 setStreamingMessage("");
                 
-                // Actualizar base de datos
-                await actualizarChatEnBD(chatId, texto, respuestaCompleta, parsed.id_respuesta_python);
+                // ✅ Ya no necesitamos actualizarChatEnBD
+                // El Backend Node.js ya guardó la respuesta en MongoDB
                 
               } else if (parsed.etapa && parsed.etapa !== 'completado') {
                 // Mostrar progreso
@@ -262,49 +262,6 @@ const IA = () => {
     } finally {
       setIsLoading(false);
       setStreamingMessage("");
-    }
-  };
-
-  // === Función para actualizar chat en base de datos ===
-  const actualizarChatEnBD = async (chatId, pregunta, respuesta, id_respuesta_python) => {
-    try {
-      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
-      // Enviar al backend Node.js para guardar en MongoDB
-      const res = await axios.post(
-        `${API_URL}/enviar/${chatId}`,
-        { question: pregunta },
-        { 
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      if (res.data.ok) {
-        // Actualizar estado local
-        const chatActualizado = {
-          ...selectedChat,
-          pregunta: pregunta,
-          respuesta: respuesta,
-          preguntas: [...(selectedChat.preguntas || []), pregunta],
-          respuestas: [...(selectedChat.respuestas || []), respuesta],
-          contexto: [{
-            confianza: confianza,
-            fuentes: fuentes,
-            timestamp: new Date().toISOString()
-          }]
-        };
-
-        setChats(prev =>
-          prev.map(chat =>
-            chat._id === chatId ? chatActualizado : chat
-          )
-        );
-
-        if (selectedChat && selectedChat._id === chatId) {
-          setSelectedChat(chatActualizado);
-        }
-      }
-    } catch (err) {
-      console.error("Error al actualizar chat en BD:", err);
     }
   };
 
