@@ -117,7 +117,7 @@ const Details = () => {
 
           <div className="flex-shrink-0 self-center md:self-start">
             <img
-              src={getHDImage(usuario?.avatarUsuario) || "/src/assets/usuarioSinfoto.jpg"}
+              src={getHDImage(usuario?.avatarUsuario) || "/usuarioSinfoto.jpg"}
               alt={`Avatar de ${usuario?.nombre || "usuario"}`}
               className="h-56 w-56 rounded-full object-cover shadow-md border-4 border-gray-200"
             />
