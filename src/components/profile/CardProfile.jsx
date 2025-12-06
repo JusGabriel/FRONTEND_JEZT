@@ -191,5 +191,3 @@ const inputStyle = {
 };
 
 export default CardProfile;
-
-export default CardProfile;
