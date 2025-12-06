@@ -108,7 +108,7 @@ return (
     <div className="flex items-center p-1">
       <div className="flex-shrink-0">
         <img
-          src={getHDImage(user?.avatarUsuario) || "src/assets/usuarioSinfoto.jpg"}
+          src={getHDImage(user?.avatarUsuario) || "/usuarioSinfoto.jpg"}
           alt={`Avatar de ${user?.nombre || "Estudiante"}`}
           className="h-10 w-10 rounded-full object-cover border"
         />
