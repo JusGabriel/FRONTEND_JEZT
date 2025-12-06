@@ -56,7 +56,9 @@ const IA = () => {
     if (selectedChat) {
       const mensajesReconstruidos = [];
       
-      if (selectedChat.preguntas && selectedChat.respuestas) {
+      // Solo reconstruir si NO hay mensajes en el estado local
+      // (para cuando recargamos la página y cargamos un chat anterior)
+      if (selectedChat.preguntas && selectedChat.respuestas && messages.length === 0) {
         const maxLength = Math.max(selectedChat.preguntas.length, selectedChat.respuestas.length);
         
         for (let i = 0; i < maxLength; i++) {
@@ -73,20 +75,27 @@ const IA = () => {
             });
           }
         }
-      } else {
+        
+        if (mensajesReconstruidos.length > 0) {
+          setMessages(mensajesReconstruidos);
+        }
+      } else if (!selectedChat.preguntas && !selectedChat.respuestas && messages.length === 0) {
+        // Fallback para chats antiguos con estructura simple
+        const tempMsgs = [];
         if (selectedChat.pregunta) {
-          mensajesReconstruidos.push({ sender: "user", text: selectedChat.pregunta });
+          tempMsgs.push({ sender: "user", text: selectedChat.pregunta });
         }
         if (selectedChat.respuesta) {
-          mensajesReconstruidos.push({ sender: "bot", text: selectedChat.respuesta });
+          tempMsgs.push({ sender: "bot", text: selectedChat.respuesta });
+        }
+        if (tempMsgs.length > 0) {
+          setMessages(tempMsgs);
         }
       }
-      
-      setMessages(mensajesReconstruidos);
     } else {
       setMessages([]);
     }
-  }, [selectedChat]);
+  }, [selectedChat._id]);
 
   // === Scroll automático al final ===
   useEffect(() => {
@@ -230,37 +239,10 @@ const IA = () => {
                   necesita_calificacion: parsed.necesita_calificacion
                 };
                 
+                // ✅ SOLO agregar el mensaje a la vista
+                // NO actualizar selectedChat aquí (causa duplicados)
                 setMessages(prev => [...prev, botMessage]);
                 setStreamingMessage("");
-                
-                // ACTUALIZAR selectedChat solo para persistencia
-                // NO duplicar la pregunta, solo agregar respuesta
-                setSelectedChat(prev => {
-                  if (!prev) return prev;
-                  
-                  const chatActualizado = { ...prev };
-                  
-                  // Inicializar arrays si no existen
-                  if (!chatActualizado.preguntas) chatActualizado.preguntas = [];
-                  if (!chatActualizado.respuestas) chatActualizado.respuestas = [];
-                  
-                  // IMPORTANTE: La pregunta ya fue guardada por el Backend
-                  // Solo agregamos la respuesta
-                  chatActualizado.respuestas.push(respuestaCompleta);
-                  
-                  return chatActualizado;
-                });
-                
-                // Actualizar el array de chats
-                setChats(prev => prev.map(c => {
-                  if (c._id === chatId) {
-                    const chatActualizado = { ...c };
-                    if (!chatActualizado.respuestas) chatActualizado.respuestas = [];
-                    chatActualizado.respuestas.push(respuestaCompleta);
-                    return chatActualizado;
-                  }
-                  return c;
-                }));
                 
               } else if (parsed.etapa && parsed.etapa !== 'completado') {
                 // Mostrar progreso
@@ -709,4 +691,3 @@ const inputSyle = {
 };
 
 export default IA;
-
