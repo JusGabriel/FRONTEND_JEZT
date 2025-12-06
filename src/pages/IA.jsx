@@ -24,7 +24,7 @@ const IA = () => {
   const [currentResponseId, setCurrentResponseId] = useState(null);
   
   const chatRef = useRef(null);
-  const token = storeAuth.getState().token || "";
+  // ✅ NO obtener token aquí - hacerlo en cada petición
   
   const API_URL = import.meta.env.VITE_BACKEND_URL;
   const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL; // ✅ URL del backend Python
@@ -32,6 +32,7 @@ const IA = () => {
   // === Cargar historial de conversaciones ===
   const obtenerHistorial = async () => {
     try {
+      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
       const res = await axios.get(`${API_URL}/historial`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -97,6 +98,7 @@ const IA = () => {
   // === Crear nueva conversación ===
   const crearConversacion = async () => {
     try {
+      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
       const res = await axios.post(
         `${API_URL}/crear`, 
         {}, 
@@ -167,12 +169,22 @@ const IA = () => {
     setStreamingMessage("");
 
     try {
+      // ✅ OBTENER TOKEN DINÁMICAMENTE EN CADA PETICIÓN
+      const token = storeAuth.getState().token || "";
+      
+      if (!token) {
+        console.error("❌ No hay token disponible");
+        throw new Error("Usuario no autenticado");
+      }
+      
+      console.log("🔑 Token obtenido:", token.substring(0, 20) + "...");
+      
       // CONEXIÓN DIRECTA AL BACKEND PYTHON CON STREAMING
       const response = await fetch(`${PYTHON_BACKEND_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
+          'Authorization': `Bearer ${token}`  // ✅ Token incluido SIEMPRE
         },
         body: JSON.stringify({
           pregunta: texto,
@@ -256,6 +268,7 @@ const IA = () => {
   // === Función para actualizar chat en base de datos ===
   const actualizarChatEnBD = async (chatId, pregunta, respuesta, id_respuesta_python) => {
     try {
+      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
       // Enviar al backend Node.js para guardar en MongoDB
       const res = await axios.post(
         `${API_URL}/enviar/${chatId}`,
@@ -301,6 +314,7 @@ const IA = () => {
     
     if (window.confirm("¿Estás seguro de que quieres eliminar esta conversación?")) {
       try {
+        const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
         await axios.delete(`${API_URL}/eliminar/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -333,6 +347,7 @@ const IA = () => {
     if (!currentResponseId) return;
 
     try {
+      const token = storeAuth.getState().token || ""; // ✅ Obtener token dinámicamente
       const res = await axios.post(
         `${API_URL}/calificar`,
         {
