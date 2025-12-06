@@ -726,6 +726,3 @@ const inputSyle = {
 };
 
 export default IA;
-
-
-export default IA;
