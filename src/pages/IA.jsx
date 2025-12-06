@@ -244,6 +244,25 @@ const IA = () => {
                 setMessages(prev => [...prev, botMessage]);
                 setStreamingMessage("");
                 
+                // ✅ ACTUALIZAR EL ARRAY DE CHATS para que el sidebar muestre el título
+                setChats(prev => prev.map(c => {
+                  if (c._id === chatId) {
+                    const chatActualizado = { ...c };
+                    // Inicializar arrays si no existen
+                    if (!chatActualizado.preguntas) chatActualizado.preguntas = [];
+                    if (!chatActualizado.respuestas) chatActualizado.respuestas = [];
+                    
+                    // Solo agregar si no está ya
+                    if (chatActualizado.preguntas.length === 0) {
+                      chatActualizado.preguntas.push(texto);
+                      chatActualizado.respuestas.push(respuestaCompleta);
+                    }
+                    
+                    return chatActualizado;
+                  }
+                  return c;
+                }));
+                
               } else if (parsed.etapa && parsed.etapa !== 'completado') {
                 // Mostrar progreso
                 setStreamingMessage(parsed.mensaje);
