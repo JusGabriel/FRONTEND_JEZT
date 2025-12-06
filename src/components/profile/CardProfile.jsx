@@ -114,7 +114,7 @@ return (
             <img
                 src={
                     getHDImage(user?.avatarUsuario) ||
-                    "src/assets/usuarioSinfoto.jpg"
+                    "/usuarioSinfoto.jpg"
                 }
                 className="h-40 w-40 rounded-full object-cover mx-auto"
             />
@@ -189,5 +189,7 @@ return (
 const inputStyle = {
   fontFamily: 'Gowun Batang, serif'
 };
+
+export default CardProfile;
 
 export default CardProfile;
