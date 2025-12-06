@@ -157,7 +157,7 @@ const IA = () => {
   // === NUEVO: Función con STREAMING ===
   const enviarMensajeStreaming = async (texto, chatId) => {
     if (!chatId) {
-      console.error("❌ No hay ID de chat para enviar mensaje");
+      console.error(" No hay ID de chat para enviar mensaje");
       return;
     }
 
@@ -173,11 +173,9 @@ const IA = () => {
       const token = storeAuth.getState().token || "";
       
       if (!token) {
-        console.error("❌ No hay token disponible");
+        console.error(" No hay token disponible");
         throw new Error("Usuario no autenticado");
       }
-      
-      console.log("🔑 Token obtenido:", token.substring(0, 20) + "...");
       
       // LLAMAR AL BACKEND NODE.JS (NO directamente a Python)
       // El Backend Node.js se encargará de reenviar al microservicio Python
