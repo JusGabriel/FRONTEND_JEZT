@@ -63,16 +63,6 @@ const listarFeedbacks = async () => {
   }
 };
 
-  // Obtener estadísticas
-const obtenerEstadisticas = async () => {
-  const url = `${import.meta.env.VITE_BACKEND_URL}/admin/feedback/stats`;
-  try {
-    const data = await fetchDataBackend(url, null, "GET", getHeaders());
-    console.info("Estadísticas:", data);
-  } catch (e) {
-    console.error("Error al obtener estadísticas");
-  }
-};
 
   // Responder a un feedback (solo admin)
   const responderFeedback = async (feedbackId, respuesta) => {
