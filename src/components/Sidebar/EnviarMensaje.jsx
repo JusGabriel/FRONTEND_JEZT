@@ -284,39 +284,62 @@ const enviarMensajes = async (mensaje, numeros, files, tipo) => {
   }
 
 try {
-  // 🔹 Función para decodificar entidades HTML
+  // Función para decodificar entidades HTML
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
   };
 
-  // 🔹 Decodificar mensaje HTML
+  // Decodificar mensaje HTML
   let html = mensaje || "";
   html = decodeHtml(html);
 
-  // 1. Reemplazar links con estilos por marcador temporal
+  // 1. Capturar links con cualquier combinación de estilos (negrilla, cursiva, tachado)
   let styledLinks = [];
+  
+  // Expresión para capturar: <b><i>texto</i></b>, <i><b>texto</b></i>, <b>texto</b>, <i>texto</i>, etc.
+  // con enlaces dentro de cualquiera de estos
   let tempHtml = html.replace(
-    /<(b|strong|i|em|s|del)>\s*<a [^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>\s*<\/(b|strong|i|em|s|del)>/gi,
-    (m, tag, url, text) => {
-      let marker = tag === "b" || tag === "strong" ? "*" : tag === "i" || tag === "em" ? "_" : "~";
+    /(<(?:b|strong|i|em|s|del)>)+\s*<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>\s*(<\/(?:b|strong|i|em|s|del)>)+/gi,
+    (m, openTags, url, text, closeTags) => {
+      // Extraer los estilos de las etiquetas de apertura
+      const boldRegex = /<(b|strong)>/gi;
+      const italicRegex = /<(i|em)>/gi;
+      const strikeRegex = /<(s|del)>/gi;
+      
+      const isBold = boldRegex.test(openTags);
+      const isItalic = italicRegex.test(openTags);
+      const isStrike = strikeRegex.test(openTags);
+      
+      // Construir marcadores
+      let prefix = "";
+      let suffix = "";
+      if (isBold) { prefix = "*" + prefix; suffix = suffix + "*"; }
+      if (isItalic) { prefix = "_" + prefix; suffix = suffix + "_"; }
+      if (isStrike) { prefix = "~" + prefix; suffix = suffix + "~"; }
+      
       const normalize = (s) => s.trim().replace(/^https?:\/\//, "").replace(/\/$/, "").toLowerCase();
-      if (normalize(text) === normalize(url))
-        return `__STYLED_LINK_URLONLY__${styledLinks.push(`${marker}${url}${marker}`) - 1}__`;
-      styledLinks.push(`${marker}${text}${marker}: ${url}`);
+      const cleanText = text.replace(/<[^>]+>/g, ""); // Limpiar HTML dentro del texto
+      
+      if (normalize(cleanText) === normalize(url)) {
+        return `__STYLED_LINK_URLONLY__${styledLinks.push(`${prefix}${url}${suffix}`) - 1}__`;
+      }
+      
+      styledLinks.push(`${prefix}${cleanText}${suffix}: ${url}`);
       return `__STYLED_LINK_${styledLinks.length - 1}__`;
     }
   );
 
-  // 2. Reemplazar links normales
+  // 2. Reemplazar links normales sin estilos
   tempHtml = tempHtml.replace(/<a [^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (m, url, text) => {
     const normalize = (s) => s.trim().replace(/^https?:\/\//, "").replace(/\/$/, "").toLowerCase();
-    if (normalize(text) === normalize(url)) return url;
-    return `${text}: ${url}`;
+    const cleanText = text.replace(/<[^>]+>/g, ""); // Limpiar HTML
+    if (normalize(cleanText) === normalize(url)) return url;
+    return `${cleanText}: ${url}`;
   });
 
-  // 3. Procesar estilos básicos (para manejar estilos que no son listas)
+  // 3. Procesar estilos básicos (negrilla, cursiva, tachado)
   let mensajeWA = tempHtml
     .replace(/<strong>([\s\S]*?)<\/strong>/gi, '*$1*')
     .replace(/<b>([\s\S]*?)<\/b>/gi, '*$1*')
@@ -338,20 +361,16 @@ try {
   mensajeWA = mensajeWA.replace(/<ol>([\s\S]*?)<\/ol>/gi, (match, inner) => {
     let idx = 1;
     let listItems = inner.replace(/<li>([\s\S]*?)<\/li>/gi, (liMatch, liContent) => {
-      // Usar la función de limpieza
       return `${idx++}. ${cleanListContent(liContent)}\n`;
     });
-    // Limpiar etiquetas <ul>/<li> remanentes, quitar salto de línea final
     return listItems.trim() + '\n';
   });
 
   // Procesar listas sin enumerar
   mensajeWA = mensajeWA.replace(/<ul>([\s\S]*?)<\/ul>/gi, (match, inner) => {
     let listItems = inner.replace(/<li>([\s\S]*?)<\/li>/gi, (liMatch, liContent) => {
-      // Usar la función de limpieza
       return `• ${cleanListContent(liContent)}\n`;
     });
-    // Quitar salto de línea final
     return listItems.trim() + '\n';
   });
 
@@ -920,4 +939,6 @@ const handleNumbersSend = async () => {
 const inputStyle = { fontFamily: "Gowun Batang, serif" };
 
 export default EnviarMensaje;
+
+
 
