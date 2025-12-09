@@ -202,7 +202,7 @@ return (
               </li>
             )}
 
-            {user.rol === "administrador" && (
+            {(user.rol === "administrador" || user.rol === "pasante") && (
               <li className="mb-3">
                 <Link
                   to="/dashboard/whatsapp"
