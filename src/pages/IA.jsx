@@ -186,6 +186,11 @@ const IA = () => {
         throw new Error("Usuario no autenticado");
       }
       
+      // Construir historial de contexto (últimas 4 preguntas)
+      const historialContexto = messages.slice(-4).map(msg => ({
+        rol: msg.sender === 'user' ? 'usuario' : 'asistente',
+        contenido: msg.text
+      }));
       
       //  LLAMAR AL BACKEND NODE.JS (NO directamente a Python)
       // El Backend Node.js se encargará de reenviar al microservicio Python
@@ -196,7 +201,8 @@ const IA = () => {
           'Authorization': `Bearer ${token}`  //  Token incluido SIEMPRE
         },
         body: JSON.stringify({
-          question: texto
+          question: texto,
+          historial: historialContexto  //  ENVIAR CONTEXTO
         })
       });
 
@@ -239,12 +245,12 @@ const IA = () => {
                   necesita_calificacion: parsed.necesita_calificacion
                 };
                 
-                // ✅ SOLO agregar el mensaje a la vista
+                //  SOLO agregar el mensaje a la vista
                 // NO actualizar selectedChat aquí (causa duplicados)
                 setMessages(prev => [...prev, botMessage]);
                 setStreamingMessage("");
                 
-                // ✅ ACTUALIZAR EL ARRAY DE CHATS para que el sidebar muestre el título
+                //  ACTUALIZAR EL ARRAY DE CHATS para que el sidebar muestre el título
                 setChats(prev => prev.map(c => {
                   if (c._id === chatId) {
                     const chatActualizado = { ...c };
