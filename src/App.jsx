@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import PrivateRouteWithRole from "./routes/PrivateRouteWithRole";
 import PublicRoute from "./routes/PublicRoute";
-import ProtectedRoute from "./routes/ProtectedRoute";
+
 
 import storeProfile from "./context/storeProfile";
 import storeAuth from "./context/storeAuth";
@@ -126,7 +126,7 @@ function App() {
             
             {/* WhatsApp */}
             <Route path="whatsapp" element={
-              <PrivateRouteWithRole allowedRoles={["administrador"]}>
+              <PrivateRouteWithRole allowedRoles={["administrador", "pasante"]}>
                 <Whats />
               </PrivateRouteWithRole>
             } />
@@ -189,3 +189,4 @@ function App() {
 }
 
 export default App;
+
