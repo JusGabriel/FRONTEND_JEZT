@@ -212,7 +212,13 @@ const EnviarMensaje = () => {
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/qr`,
-        { validateStatus: (s) => s < 500, headers: { "Cache-Control": "no-cache" } }
+        { 
+          validateStatus: (s) => s < 500, 
+          headers: { 
+            "Cache-Control": "no-cache",
+            Authorization: `Bearer ${token}`
+          } 
+        }
       );
       if (data?.ready) {
         // 🔹 GUARDAR ESTADO CUANDO ESTÉ LISTO
@@ -233,7 +239,12 @@ const EnviarMensaje = () => {
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/status`,
-        { headers: { "Cache-Control": "no-cache" } }
+        { 
+          headers: { 
+            "Cache-Control": "no-cache",
+            Authorization: `Bearer ${token}`
+          } 
+        }
       );
       // Backend ahora retorna { ready: boolean, state: string }
       const isReady = Boolean(data?.ready);
