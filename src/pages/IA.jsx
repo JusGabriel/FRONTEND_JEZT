@@ -56,9 +56,8 @@ const IA = () => {
     if (selectedChat) {
       const mensajesReconstruidos = [];
       
-      // Solo reconstruir si NO hay mensajes en el estado local
-      // (para cuando recargamos la página y cargamos un chat anterior)
-      if (selectedChat.preguntas && selectedChat.respuestas && messages.length === 0) {
+      // Reconstruir si hay preguntas y respuestas
+      if (selectedChat.preguntas && selectedChat.respuestas) {
         const maxLength = Math.max(selectedChat.preguntas.length, selectedChat.respuestas.length);
         
         for (let i = 0; i < maxLength; i++) {
@@ -75,23 +74,18 @@ const IA = () => {
             });
           }
         }
-        
-        if (mensajesReconstruidos.length > 0) {
-          setMessages(mensajesReconstruidos);
-        }
-      } else if (!selectedChat.preguntas && !selectedChat.respuestas && messages.length === 0) {
+      } else {
         // Fallback para chats antiguos con estructura simple
-        const tempMsgs = [];
         if (selectedChat.pregunta) {
-          tempMsgs.push({ sender: "user", text: selectedChat.pregunta });
+          mensajesReconstruidos.push({ sender: "user", text: selectedChat.pregunta });
         }
         if (selectedChat.respuesta) {
-          tempMsgs.push({ sender: "bot", text: selectedChat.respuesta });
-        }
-        if (tempMsgs.length > 0) {
-          setMessages(tempMsgs);
+          mensajesReconstruidos.push({ sender: "bot", text: selectedChat.respuesta });
         }
       }
+      
+      // Siempre actualizar los mensajes
+      setMessages(mensajesReconstruidos);
     } else {
       setMessages([]);
     }
