@@ -1,25 +1,13 @@
-import { Navigate } from "react-router-dom";
-import storeAuth from "../context/storeAuth";
-import storeProfile from "../context/storeProfile";
+import { Navigate } from "react-router"
+import storeAuth from "../context/storeAuth"
 
 const ProtectedRoute = ({ children }) => {
-  const token = storeAuth((state) => state.token);
-  const loading = storeProfile((state) => state.loading);
 
-  // Si no hay token, redirigir a login
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+    const token = storeAuth(state => state.token)
+    
+    return token ?  children  : <Navigate to="/login" replace />
+}
 
-  // Si está cargando el perfil, mostrar mensaje o loader
-  if (loading) {
-    return <p>Cargando perfil...</p>;
-  }
-
-  // Si todo está bien, renderizar los hijos
-  return children;
-};
-
-export default ProtectedRoute;
+export default ProtectedRoute
 
 
