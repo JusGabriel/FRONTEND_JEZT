@@ -1,9 +1,8 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
-import PrivateRouteWithRole from "./routes/PrivateRouteWithRole";
 import PublicRoute from "./routes/PublicRoute";
-
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 import storeProfile from "./context/storeProfile";
 import storeAuth from "./context/storeAuth";
@@ -29,7 +28,7 @@ import Details from "./pages/Details";
 import Whats from "./pages/Dashboard_whatsapp";
 import Feeback from "./pages/QuejasSugerencias";
 import Formularios from "./pages/Formularios";
-import FormulariosEstudiante from "./pages/FormulariosEstudiante"; //  nuevo import
+import FormulariosEstudiante from "./pages/FormulariosEstudiante";
 import StudentFeedbacks from "./pages/StudentFeedbacks";
 import AddSingleQnA from "./pages/AddSingleQnA";
 import ManageResponses from "./pages/ManageResponses";
@@ -37,7 +36,7 @@ import ManageResponses from "./pages/ManageResponses";
 // 🔹 Componente auxiliar para ocultar SOLO el footer en login y dashboard
 const LayoutWithConditionalHeaderFooter = ({ children }) => {
   const location = useLocation();
-  const { token } = storeAuth(); // detecta si hay sesión activa
+  const { token } = storeAuth();
 
   // Rutas donde NO se debe mostrar el footer
   const hideFooterRoutes = [
@@ -46,7 +45,7 @@ const LayoutWithConditionalHeaderFooter = ({ children }) => {
     "/forgot",
     "/reset",
     "/confirm",
-    "/dashboard", // oculta footer en todo el dashboard
+    "/dashboard",
   ];
 
   const shouldHideFooter = token || hideFooterRoutes.some((path) =>
@@ -61,8 +60,6 @@ const LayoutWithConditionalHeaderFooter = ({ children }) => {
   );
 };
 
-
-
 function App() {
   const { profile } = storeProfile();
   const { token } = storeAuth();
@@ -70,8 +67,6 @@ function App() {
   useEffect(() => {
     if (token) profile();
   }, [token]);
-
-  
 
   return (
     <BrowserRouter>
@@ -86,106 +81,42 @@ function App() {
             <Route path="forgot" element={<Forgot />} />
             <Route path="confirm/:token" element={<Confirm />} />
             <Route path="reset/:token" element={<Reset />} />
-            <Route path="reset-admin/:token" element={<Reset />} />
-            <Route path="reset-pasante/:token" element={<Reset />} />
-            <Route path="ia" element={<IA />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
-          {/* 🔹 Rutas protegidas por rol */}
-          <Route path="dashboard/*" element={<Dashboard />}>
-            {/* ======== RUTAS PARA TODOS LOS ROLES ======== */}
-            {/* Perfil */}
-            <Route index element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "estudiante", "pasante"]}>
-                <Profile />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Visualizar detalles de estudiante */}
-            <Route path="visualizar/estudiante/:id" element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "estudiante"]}>
-                <Details />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Visualizar detalles de pasante */}
-            <Route path="visualizar/pasante/:id" element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "pasante"]}>
-                <Details />
-              </PrivateRouteWithRole>
-            } />
-
-            {/* ======== RUTAS SOLO PARA ADMINISTRADOR ======== */}
-            {/* Listar usuarios */}
-            <Route path="listar" element={
-              <PrivateRouteWithRole allowedRoles={["administrador"]}>
-                <List />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* WhatsApp */}
-            <Route path="whatsapp" element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "pasante"]}>
-                <Whats />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Formularios */}
-            <Route path="formularios" element={
-              <PrivateRouteWithRole allowedRoles={["administrador"]}>
-                <Formularios />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Preguntas/Quejas */}
-            <Route path="preguntas" element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "pasante"]}>
-                <Feeback />
-              </PrivateRouteWithRole>
-            } />
-
-            {/* ======== RUTAS SOLO PARA ESTUDIANTE ======== */}
-            {/* Formulario especial estudiante */}
-            <Route path="formularios/estudiante" element={
-              <PrivateRouteWithRole allowedRoles={["estudiante"]}>
-                <FormulariosEstudiante />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Chat IA */}
-            <Route path="ia" element={
-              <PrivateRouteWithRole allowedRoles={["administrador", "estudiante"]}>
-                <IA />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Preguntas/Quejas - Estudiante */}
-            <Route path="preguntas/estudiantes" element={
-              <PrivateRouteWithRole allowedRoles={["estudiante"]}>
-                <StudentFeedbacks />
-              </PrivateRouteWithRole>
-            } />
-
-            {/* ======== RUTAS SOLO PARA PASANTE ======== */}
-            {/* Agregar QnA */}
-            <Route path="ia/agregarQnA" element={
-              <PrivateRouteWithRole allowedRoles={["pasante"]}>
-                <AddSingleQnA />
-              </PrivateRouteWithRole>
-            } />
-            
-            {/* Actualizar preguntas IA */}
-            <Route path="ia/actualizar-preguntas" element={
-              <PrivateRouteWithRole allowedRoles={["pasante"]}>
-                <ManageResponses />
-              </PrivateRouteWithRole>
-            } />
-          </Route>
+          {/* 🔹 Rutas protegidas */}
+          <Route
+            path="dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Routes>
+                  <Route element={<Dashboard />}>
+                    <Route index element={<Profile />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="listar" element={<List />} />
+                    <Route path="visualizar/estudiante/:id" element={<Details />} />
+                    <Route path="visualizar/pasante/:id" element={<Details />} />
+                    <Route path="whatsapp" element={<Whats />} />
+                    <Route path="preguntas" element={<Feeback />} />
+                    <Route path="formularios" element={<Formularios />} />
+                    <Route path="formularios/estudiante" element={<FormulariosEstudiante />} />
+                    <Route path="ia" element={<IA />} />
+                    <Route path="preguntas/estudiantes" element={<StudentFeedbacks />} />
+                    <Route path="ia/agregarQnA" element={<AddSingleQnA />} />
+                    <Route path="ia/actualizar-preguntas" element={<ManageResponses />} />
+                  </Route>
+                </Routes>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </LayoutWithConditionalHeaderFooter>
     </BrowserRouter>
   );
+}
+
+export default App;
+
 }
 
 export default App;
