@@ -610,6 +610,8 @@ const handleNumbersSend = async () => {
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                 <div className="bg-gray-50 text-[#17243D] p-6 rounded-lg shadow-lg flex flex-col items-center border border-gray-300">
                   <h3 className="text-lg font-semibold mb-4 text-[#D4AF37]">Escanea este QR</h3>
+                  <h4 className="text-lg font-semibold mb-4 text-[#17243D]">No cerrar este modal, se procedera a cerrar automaticamente cuando este listo</h4>
+
 
                   {qr ? (
                     qr.startsWith("data:image") ? (
@@ -950,6 +952,7 @@ const handleNumbersSend = async () => {
 const inputStyle = { fontFamily: "Gowun Batang, serif" };
 
 export default EnviarMensaje;
+
 
 
 
