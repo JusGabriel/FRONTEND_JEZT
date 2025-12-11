@@ -1,10 +1,11 @@
 import React from "react";
 import {
   PaperClipIcon,
+  ArrowLeftIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/solid";
 
-const VisualizarMensaje = ({ mensaje }) => {
+const VisualizarMensaje = ({ mensaje, onClose }) => {
   if (!mensaje) return null;
 
   // Permite mostrar saltos de línea del texto real
@@ -32,11 +33,18 @@ const VisualizarMensaje = ({ mensaje }) => {
   return (
     <div className="flex flex-col h-full bg-[#f2f2f2] text-[#17243D] p-6 font-sans">
       {/* Header superior */}
-      <div className="mb-4 border-b border-gray-300 pb-2">
+      <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-2">
         <h2 className="text-lg font-bold text-[#17243D] flex items-center gap-2">
           <EnvelopeIcon className="w-5 h-5 text-[#EF3340]" />
           Mensaje seleccionado
         </h2>
+        <button
+          onClick={onClose}
+          className="flex items-center gap-1 px-3 py-1 bg-[#e0e0e0] rounded-md text-sm hover:bg-gray-300 transition-colors duration-200 shadow-sm hover:shadow-md"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Volver
+        </button>
       </div>
 
       {/* Contenedor del mensaje */}
@@ -128,4 +136,5 @@ const VisualizarMensaje = ({ mensaje }) => {
 };
 
 export default VisualizarMensaje;
+
 
