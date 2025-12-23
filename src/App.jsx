@@ -104,6 +104,7 @@ function App() {
                     <Route path="preguntas/estudiantes" element={<StudentFeedbacks />} />
                     <Route path="ia/agregarQnA" element={<AddSingleQnA />} />
                     <Route path="ia/actualizar-preguntas" element={<ManageResponses />} />
+                    <Route path="home" element={<Home />} />
                   </Route>
                 </Routes>
               </ProtectedRoute>
