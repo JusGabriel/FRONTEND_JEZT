@@ -25,12 +25,12 @@ const storeAuth = create(
             rol: null,
             setToken: (token) => set({ token }),
             setRol: (rol) => set({ rol }),
-            clearToken: () => set({ token: null, rol: null }),
+            clearToken: () => set({ token: null}),
             // Verificar y limpiar si expiró
             validateToken: () => {
                 set(state => {
                     if (state.token && isTokenExpired(state.token)) {
-                        return { token: null, rol: null }
+                        return { token: null }
                     }
                     return state
                 })
