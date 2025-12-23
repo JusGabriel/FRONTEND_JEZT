@@ -64,18 +64,14 @@ function App() {
   const { profile } = storeProfile();
   const { token, validateToken } = storeAuth();
 
+  // Validar token al montar la app (cuando reabre la página)
+  useEffect(() => {
+    validateToken();
+  }, [validateToken]);
+
   useEffect(() => {
     if (token) profile();
   }, [token]);
-
-  // Validar si el token expiró cada 30 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      validateToken();
-    }, 30000); // 30 segundos
-
-    return () => clearInterval(interval);
-  }, [validateToken]);
 
   return (
     <BrowserRouter>
@@ -126,4 +122,5 @@ function App() {
 }
 
 export default App;
+
 
