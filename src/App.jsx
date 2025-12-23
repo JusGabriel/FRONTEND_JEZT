@@ -85,6 +85,7 @@ function App() {
           </Route>
 
           {/* 🔹 Rutas protegidas */}
+          <Route path="dashboard/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route
             path="dashboard/*"
             element={
