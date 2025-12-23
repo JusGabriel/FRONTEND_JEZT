@@ -84,14 +84,13 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
 
-          {/* 🔹 Rutas protegidas */}
-          <Route path="dashboard/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+         {/* 🔹 Rutas protegidas */}
           <Route
             path="dashboard/*"
             element={
               <ProtectedRoute>
-                <Route path="home" element={<Home />} />
                 <Routes>
+                  <Route path="home" element={<Home />} />
                   <Route element={<Dashboard />}>
                     <Route index element={<Profile />} />
                     <Route path="profile" element={<Profile />} />
@@ -106,7 +105,6 @@ function App() {
                     <Route path="preguntas/estudiantes" element={<StudentFeedbacks />} />
                     <Route path="ia/agregarQnA" element={<AddSingleQnA />} />
                     <Route path="ia/actualizar-preguntas" element={<ManageResponses />} />
-                    
                   </Route>
                 </Routes>
               </ProtectedRoute>
