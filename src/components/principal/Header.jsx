@@ -43,7 +43,7 @@ export const Header = () => {
     >
       {/* Logo */}
       <NavLink
-        to={isLoggedIn ? "/home" : "/"}
+        to={isLoggedIn ? "/dashboard/home" : "/"}
         className="flex items-center gap-3"
       >
         <img
