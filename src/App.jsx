@@ -62,12 +62,13 @@ const LayoutWithConditionalHeaderFooter = ({ children }) => {
 
 function App() {
   const { profile } = storeProfile();
-  const { token, validateToken } = storeAuth();
+  const token = storeAuth(state => state.token);
+  const validateToken = storeAuth(state => state.validateToken);
 
-  // Validar token al montar la app (cuando reabre la página)
+  // Validar token al montar la app (solo una vez)
   useEffect(() => {
     validateToken();
-  }, [validateToken]);
+  }, []); // Sin dependencias - ejecuta solo al montar
 
   useEffect(() => {
     if (token) profile();
