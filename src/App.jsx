@@ -62,11 +62,20 @@ const LayoutWithConditionalHeaderFooter = ({ children }) => {
 
 function App() {
   const { profile } = storeProfile();
-  const { token } = storeAuth();
+  const { token, validateToken } = storeAuth();
 
   useEffect(() => {
     if (token) profile();
   }, [token]);
+
+  // Validar si el token expiró cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      validateToken();
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [validateToken]);
 
   return (
     <BrowserRouter>
@@ -84,7 +93,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
 
-         {/* 🔹 Rutas protegidas */}
+          {/* 🔹 Rutas protegidas */}
           <Route
             path="dashboard/*"
             element={
@@ -117,5 +126,4 @@ function App() {
 }
 
 export default App;
-
 
