@@ -10,29 +10,45 @@ const FormulariosEstudiante = () => {
 
   const fetchFormularios = async () => {
     try {
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch(import.meta.env.VITE_N8N_BACKEND_URL_E, {
-        method: "GET", // Backend filtra por rol/email
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
+      // Si la respuesta no es OK, lanzamos error para caer en el catch
       if (!res.ok) {
-        console.error("Error en la respuesta del servidor");
+        throw new Error(`Error en el servidor: ${res.status}`);
+      }
+
+      // Validamos que la respuesta tenga contenido antes de parsear JSON
+      const text = await res.text();
+      if (!text) {
+        setFormularios([]);
         setLoading(false);
         return;
       }
 
-      const data = await res.json();
+      const data = JSON.parse(text);
 
-      // Backend devuelve solo los datos permitidos
-      setFormularios(Array.isArray(data) ? data : [data]);
+      /**
+       * MEJORA: n8n devuelve los datos en un array según la configuración 
+       * del nodo "Respond to Webhook".
+       */
+      const datosFinales = Array.isArray(data) ? data : (data.data || []);
+      setFormularios(datosFinales);
       setLoading(false);
+      
     } catch (err) {
-      console.error("Error al cargar los formularios", err);
+      console.error("Error al cargar los formularios:", err);
+      setFormularios([]); // Evitamos que sea null
       setLoading(false);
     }
   };
@@ -53,6 +69,9 @@ const FormulariosEstudiante = () => {
   if (loading) {
     return <p className="text-center mt-4">Cargando formulario...</p>;
   }
+
+  // Extraemos el primer formulario para mostrar las fechas límite en la card superior
+  const infoGeneral = formularios.length > 0 ? formularios[0] : null;
 
   return (
     <div className="w-full flex flex-col bg-white" style={inputSyle}>
@@ -84,7 +103,7 @@ const FormulariosEstudiante = () => {
                   📅 Solicitar tutor:
                 </p>
                 <p className="text-[10px] md:text-sm font-bold md:font-medium text-[#17243D]">
-                  {formularios[0]?.fecha_max_solicitar_tutor || "Por determinar"}
+                  {infoGeneral?.fecha_max_solicitar_tutor || "Por determinar"}
                 </p>
               </div>
 
@@ -93,7 +112,7 @@ const FormulariosEstudiante = () => {
                   📤 Enviar comisión:
                 </p>
                 <p className="text-[10px] md:text-sm font-bold md:font-medium text-[#17243D]">
-                  {formularios[0]?.fecha_max_enviar_comision || "Por determinar"}
+                  {infoGeneral?.fecha_max_enviar_comision || "Por determinar"}
                 </p>
               </div>
             </div>
@@ -159,8 +178,8 @@ const FormulariosEstudiante = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-400">
-                    No se encontró tu formulario
+                  <td colSpan={5} className="text-center py-8 text-gray-500 italic">
+                    No se encontró ningún formulario asociado a tu cuenta.
                   </td>
                 </tr>
               )}
