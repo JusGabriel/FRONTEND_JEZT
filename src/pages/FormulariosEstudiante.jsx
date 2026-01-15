@@ -163,7 +163,7 @@ const FormulariosEstudiante = () => {
                 formularios.map((f, idx) => (
                   <tr key={idx} className="bg-[#dee2e6] text-[#17243D] hover:bg-[#d1d5dc] hover:text-black text-center transition-all">
                     <td className="py-1 md:py-2 px-1 md:px-2 text-xs">{idx + 1}</td>
-                    <td className="py-1 md:py-2 px-1 md:px-2 text-xs">{f.documento || "-"}</td>
+                    <td className="py-1 md:py-2 px-1 md:px-2 text-xs">{f.json?.documento || f.documento || "-"} </td>
                     <td className="py-1 md:py-2 px-1 md:px-2 text-xs">
                       {f.fecha_envio ? new Date(f.fecha_envio).toLocaleDateString() : "-"}
                     </td>
@@ -196,3 +196,4 @@ const inputSyle = {
 };
 
 export default FormulariosEstudiante;
+
